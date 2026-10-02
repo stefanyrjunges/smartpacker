@@ -3,4 +3,5 @@ Flask-SQLAlchemy
 flask-cors
 flask-jwt-extended
 werkzeug
+requests
 pytest
