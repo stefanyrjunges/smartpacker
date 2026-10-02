@@ -7,6 +7,10 @@ __pycache__/
 # Database (local data, not source code)
 instance/
 
+# Environment variables / secrets
+.env
+*.env
+
 # Node / SvelteKit
 node_modules/
 frontend/.svelte-kit/
