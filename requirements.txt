@@ -5,5 +5,5 @@ flask-jwt-extended
 werkzeug
 requests
 gunicorn
-psycopg2-binary
+psycopg[binary]
 pytest
