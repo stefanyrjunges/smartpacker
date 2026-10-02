@@ -1,0 +1,6 @@
+flask
+Flask-SQLAlchemy
+flask-cors
+flask-jwt-extended
+werkzeug
+pytest
