@@ -18,9 +18,16 @@ app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 db_path = os.path.join(BASE_DIR, "instance", "smartpack.db")
 
-# Tests can set DATABASE_URL to use their own isolated database
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", f"sqlite:///{db_path}")
-app.config["JWT_SECRET_KEY"] = "smartpack-secret-key-change-in-production"
+# In production DATABASE_URL points at the cloud PostgreSQL database.
+# Tests set it to an in-memory database. Locally it falls back to SQLite.
+database_url = os.environ.get("DATABASE_URL", f"sqlite:///{db_path}")
+
+# Render gives PostgreSQL URLs as "postgres://" but SQLAlchemy needs "postgresql://"
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
+
+app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET_KEY", "smartpack-secret-key-change-in-production")
 
 db.init_app(app)
 CORS(app)

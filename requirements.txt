@@ -4,4 +4,6 @@ flask-cors
 flask-jwt-extended
 werkzeug
 requests
+gunicorn
+psycopg2-binary
 pytest
