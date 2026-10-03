@@ -105,7 +105,9 @@
 		<p class="muted">Loading...</p>
 	{:else if error}
 		<p class="error">{error}.</p>
-	{:else if trips.length === 0 && !showForm}
+	{:else if showForm}
+		<!-- Hide the trip list while the create form is open -->
+	{:else if trips.length === 0}
 		<p class="muted">No trips yet. Click "New trip" to create one.</p>
 	{:else}
 		<div class="trip-list">
