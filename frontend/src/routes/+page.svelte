@@ -22,7 +22,7 @@
 	};
 
 	onMount(async () => {
-		const res = await apiFetch('/api/trips');
+		const res = await apiFetch('/trips');
 		if (res.ok) {
 			trips = await res.json();
 		} else {
@@ -36,7 +36,7 @@
 		formError = '';
 		submitting = true;
 
-		const res = await apiFetch('/api/trips', {
+		const res = await apiFetch('/trips', {
 			method: 'POST',
 			body: JSON.stringify({ destination, luggage_type, start_date, end_date })
 		});

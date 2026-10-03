@@ -42,7 +42,7 @@
 		loading = true;
 		error = '';
 
-		const res = await apiFetch(`/api/trips/${tripId}/packing-list`);
+		const res = await apiFetch(`/trips/${tripId}/packing-list`);
 		const data = await res.json();
 
 		if (!res.ok) {
@@ -57,7 +57,7 @@
 	async function togglePacked(item) {
 		const newPacked = !item.packed;
 
-		const res = await apiFetch(`/api/trips/${tripId}/packing-list/${item.id}`, {
+		const res = await apiFetch(`/trips/${tripId}/packing-list/${item.id}`, {
 			method: 'PATCH',
 			body: JSON.stringify({ packed: newPacked })
 		});
@@ -68,7 +68,7 @@
 	}
 
 	async function deleteItem(itemId) {
-		const res = await apiFetch(`/api/trips/${tripId}/packing-list/${itemId}`, {
+		const res = await apiFetch(`/trips/${tripId}/packing-list/${itemId}`, {
 			method: 'DELETE'
 		});
 
@@ -82,7 +82,7 @@
 		addError = '';
 		addingItem = true;
 
-		const res = await apiFetch(`/api/trips/${tripId}/packing-list`, {
+		const res = await apiFetch(`/trips/${tripId}/packing-list`, {
 			method: 'POST',
 			body: JSON.stringify({ name: newItemName, quantity: newItemQuantity })
 		});
@@ -106,7 +106,7 @@
 
 		regenerating = true;
 
-		const res = await apiFetch(`/api/trips/${tripId}/packing-list/regenerate`, {
+		const res = await apiFetch(`/trips/${tripId}/packing-list/regenerate`, {
 			method: 'POST'
 		});
 

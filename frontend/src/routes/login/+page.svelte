@@ -1,6 +1,7 @@
 <script>
 	import { goto } from '$app/navigation';
 	import { saveAuth } from '$lib/auth';
+	import { API_URL } from '$lib/api';
 
 	let email = $state('');
 	let password = $state('');
@@ -12,7 +13,7 @@
 		error = '';
 		submitting = true;
 
-		const res = await fetch('/api/auth/login', {
+		const res = await fetch(API_URL + '/auth/login', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ email, password })

@@ -39,8 +39,8 @@
 		error = '';
 
 		const [tripRes, activitiesRes] = await Promise.all([
-			apiFetch(`/api/trips/${tripId}`),
-			apiFetch(`/api/trips/${tripId}/activities`)
+			apiFetch(`/trips/${tripId}`),
+			apiFetch(`/trips/${tripId}/activities`)
 		]);
 
 		if (!tripRes.ok) {
@@ -64,7 +64,7 @@
 	async function saveTrip() {
 		saving = true;
 
-		await apiFetch(`/api/trips/${tripId}`, {
+		await apiFetch(`/trips/${tripId}`, {
 			method: 'PUT',
 			body: JSON.stringify({
 				destination: trip.destination,
@@ -82,7 +82,7 @@
 		activityError = '';
 		addingActivity = true;
 
-		const res = await apiFetch(`/api/trips/${tripId}/activities`, {
+		const res = await apiFetch(`/trips/${tripId}/activities`, {
 			method: 'POST',
 			body: JSON.stringify({ activities: [newActivity] })
 		});
@@ -98,12 +98,12 @@
 		newActivity = '';
 		addingActivity = false;
 
-		const activitiesRes = await apiFetch(`/api/trips/${tripId}/activities`);
+		const activitiesRes = await apiFetch(`/trips/${tripId}/activities`);
 		activities = await activitiesRes.json();
 	}
 
 	async function removeActivity(activityId) {
-		await apiFetch(`/api/trips/${tripId}/activities/${activityId}`, { method: 'DELETE' });
+		await apiFetch(`/trips/${tripId}/activities/${activityId}`, { method: 'DELETE' });
 		activities = activities.filter((a) => a.id !== activityId);
 	}
 
@@ -112,7 +112,7 @@
 		weatherError = '';
 		weather = null;
 
-		const res = await apiFetch(`/api/trips/${tripId}/weather`);
+		const res = await apiFetch(`/trips/${tripId}/weather`);
 		const data = await res.json();
 
 		if (!res.ok || data.error) {
@@ -127,7 +127,7 @@
 	async function deleteTrip() {
 		if (!confirm('Delete this trip?')) return;
 		deleting = true;
-		await apiFetch(`/api/trips/${tripId}`, { method: 'DELETE' });
+		await apiFetch(`/trips/${tripId}`, { method: 'DELETE' });
 		goto('/');
 	}
 </script>
