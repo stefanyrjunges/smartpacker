@@ -107,12 +107,15 @@
 		activities = activities.filter((a) => a.id !== activityId);
 	}
 
-	async function loadWeather() {
+	async function loadWeather(refresh = false) {
 		loadingWeather = true;
 		weatherError = '';
 		weather = null;
 
-		const res = await apiFetch(`/trips/${tripId}/weather`);
+		const url = refresh
+			? `/trips/${tripId}/weather?refresh=true`
+			: `/trips/${tripId}/weather`;
+		const res = await apiFetch(url);
 		const data = await res.json();
 
 		if (!res.ok || data.error) {
@@ -227,7 +230,7 @@
 		<div class="card" style="margin-bottom: 20px;">
 			<div class="section-header">
 				<h2>Weather</h2>
-				<button class="btn-secondary" onclick={loadWeather} disabled={loadingWeather}>
+				<button class="btn-secondary" onclick={() => loadWeather(weather !== null)} disabled={loadingWeather}>
 					{loadingWeather ? 'Loading...' : weather ? 'Refresh' : 'Get weather'}
 				</button>
 			</div>

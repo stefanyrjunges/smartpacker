@@ -151,3 +151,36 @@ def test_add_custom_packing_item(client, auth_headers):
     assert res.status_code == 201
     assert res.get_json()["name"] == "Travel adapter"
     assert res.get_json()["category"] == "Other"
+
+
+def test_weather_returns_cached_data_without_calling_api(client, auth_headers):
+    from flask_app import db
+    from database.models import WeatherCache
+
+    create = client.post("/trips", headers=auth_headers, json={
+        "destination": "Rome",
+        "luggage_type": "checked",
+        "start_date": "2026-06-01",
+        "end_date": "2026-06-05"
+    })
+    trip_id = create.get_json()["id"]
+
+    # Pre-save weather so the endpoint should return it instead of calling the API
+    db.session.add(WeatherCache(
+        destination="Rome",
+        country="Italy",
+        min_temperature=12.0,
+        max_temperature=25.0,
+        total_precipitation=0.0,
+        rain_expected=False,
+        trip_id=trip_id
+    ))
+    db.session.commit()
+
+    res = client.get(f"/trips/{trip_id}/weather", headers=auth_headers)
+
+    assert res.status_code == 200
+    data = res.get_json()
+    assert data["destination"] == "Rome"
+    assert data["max_temperature"] == 25.0
+    assert data["rain_expected"] is False

@@ -11,7 +11,7 @@ from flask import Flask, request
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
-from database.models import db, User, Trip, Activity, PackingItem
+from database.models import db, User, Trip, Activity, PackingItem, WeatherCache
 from datetime import datetime, timedelta
 from trip_functions import validate_data, validate_activities
 from weather_functions import get_weather
@@ -229,6 +229,8 @@ def delete_trip(id):
     for item in packing_items:
         db.session.delete(item)
 
+    WeatherCache.query.filter_by(trip_id=id).delete()
+
     db.session.delete(trip)
     db.session.commit()
 
@@ -300,6 +302,40 @@ def delete_activity(id, activity_id):
 
 # Weather methods
 
+# Returns saved weather for a trip, or fetches it from the API and saves it.
+# Returns a dict with an "error" key if the API call failed.
+def get_or_fetch_weather(trip):
+    cache = WeatherCache.query.filter_by(trip_id=trip.id).first()
+
+    if cache:
+        return {
+            "destination": cache.destination,
+            "country": cache.country,
+            "min_temperature": cache.min_temperature,
+            "max_temperature": cache.max_temperature,
+            "total_precipitation": cache.total_precipitation,
+            "rain_expected": cache.rain_expected
+        }
+
+    weather = get_weather(trip.destination, trip.start_date, trip.end_date)
+
+    if "error" in weather:
+        return weather
+
+    db.session.add(WeatherCache(
+        destination=weather["destination"],
+        country=weather["country"],
+        min_temperature=weather["min_temperature"],
+        max_temperature=weather["max_temperature"],
+        total_precipitation=weather["total_precipitation"],
+        rain_expected=weather["rain_expected"],
+        trip_id=trip.id
+    ))
+    db.session.commit()
+
+    return weather
+
+
 @app.get("/trips/<int:id>/weather")
 @jwt_required()
 def trip_weather(id):
@@ -309,7 +345,15 @@ def trip_weather(id):
     if trip is None or trip.user_id != user_id:
         return {"message": "Trip not found"}, 404
 
-    weather = get_weather(trip.destination, trip.start_date, trip.end_date)
+    # "refresh" forces a new API call by clearing the saved weather first
+    if request.args.get("refresh") == "true":
+        WeatherCache.query.filter_by(trip_id=id).delete()
+        db.session.commit()
+
+    weather = get_or_fetch_weather(trip)
+
+    if "error" in weather:
+        return weather, 400
 
     return weather
 
@@ -342,7 +386,7 @@ def get_packing_list(id):
 
     activities = Activity.query.filter_by(trip_id=id).all()
 
-    weather = get_weather(trip.destination, trip.start_date, trip.end_date)
+    weather = get_or_fetch_weather(trip)
 
     if "error" in weather:
         return weather, 400
@@ -488,7 +532,7 @@ def regenerate_packing_list(trip_id):
 
     activities = Activity.query.filter_by(trip_id=trip_id).all()
 
-    weather = get_weather(trip.destination, trip.start_date, trip.end_date)
+    weather = get_or_fetch_weather(trip)
 
     if "error" in weather:
         return weather, 400

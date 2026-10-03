@@ -37,3 +37,14 @@ class PackingItem(db.Model):
     reason = db.Column(db.String(200))
     # Relate the item to the trip id so we know it belongs to a specific trip
     trip_id = db.Column(db.Integer, db.ForeignKey("trip.id"), nullable=False)
+
+# Saved weather for a trip so we don't call the weather API every time
+class WeatherCache(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    destination = db.Column(db.String(100), nullable=False)
+    country = db.Column(db.String(100), nullable=False)
+    min_temperature = db.Column(db.Float, nullable=False)
+    max_temperature = db.Column(db.Float, nullable=False)
+    total_precipitation = db.Column(db.Float, nullable=False)
+    rain_expected = db.Column(db.Boolean, nullable=False)
+    trip_id = db.Column(db.Integer, db.ForeignKey("trip.id"), nullable=False)
