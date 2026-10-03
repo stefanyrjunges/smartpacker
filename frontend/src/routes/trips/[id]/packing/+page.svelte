@@ -189,6 +189,10 @@
 			{/if}
 		</div>
 	{/if}
+
+	<div class="done-bar">
+		<a href="/" class="btn-primary done-btn">Done</a>
+	</div>
 </div>
 
 <style>
@@ -305,7 +309,15 @@
 		padding: 4px 8px;
 		font-size: 12px;
 	}
-	
+
+	.done-bar {
+		display: flex;
+		justify-content: flex-end;
+		margin-top: 24px;
+		padding-top: 20px;
+		border-top: 1px solid #e5e5e5;
+	}
+
 	.done-btn {
 		display: inline-block;
 		padding: 9px 22px;
