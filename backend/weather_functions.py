@@ -1,4 +1,7 @@
+import logging
 import requests
+
+logger = logging.getLogger(__name__)
 
 # Get the weather by connecting to open-meteo API and handle possible errors
 
@@ -16,10 +19,13 @@ def get_weather(destination, start_date, end_date):
         response = requests.get(url, params=params, timeout=10)
         response.raise_for_status()
         data = response.json()
-    except requests.RequestException:
+    except requests.RequestException as e:
+        status = e.response.status_code if e.response is not None else "no response"
+        logger.error("Geocoding request failed: %s: %s (HTTP %s)", type(e).__name__, e, status)
         return {"error": "Unable to connect to the weather service. Try again in a moment."}
 
     if "results" not in data or not data["results"]:
+        logger.error("Geocoding returned no results for destination: %s", destination)
         return {"error": "Destination not found. Please check the spelling and try again."}
 
     location = data["results"][0]
@@ -46,10 +52,17 @@ def get_weather(destination, start_date, end_date):
         )
         weather_response.raise_for_status()
         weather_data = weather_response.json()
-    except requests.RequestException:
+    except requests.RequestException as e:
+        status = e.response.status_code if e.response is not None else "no response"
+        body = e.response.text if e.response is not None else ""
+        logger.error(
+            "Forecast request failed for %s to %s: %s: %s (HTTP %s) %s",
+            start_date, end_date, type(e).__name__, e, status, body
+        )
         return {"error": "Unable to retrieve weather data. Try again in a moment."}
 
     if "daily" not in weather_data:
+        logger.error("Forecast response had no 'daily' data for %s to %s", start_date, end_date)
         return {"error": "Weather data is not available for these dates. Open-Meteo only supports forecasts up to 16 days ahead."}
 
     daily = weather_data["daily"]

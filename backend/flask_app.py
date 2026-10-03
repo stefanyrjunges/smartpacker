@@ -1,7 +1,11 @@
 import os
 import sys
+import logging
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+# Send log messages to stdout so they show up in the Render logs
+logging.basicConfig(level=logging.INFO)
 
 from flask import Flask, request
 from flask_cors import CORS
