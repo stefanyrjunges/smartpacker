@@ -123,7 +123,7 @@
 
 <div class="page">
 	<div class="top-bar">
-		<a href="/trips/{tripId}?mode={mode}" class="back-link">← Back to trip</a>
+		<a href="/trips/{tripId}?mode={mode}" class="back-link">⇱ Back to trip</a>
 		{#if isEditing && items.length > 0}
 			<button class="btn-secondary" onclick={regenerate} disabled={regenerating}>
 				{regenerating ? 'Regenerating...' : 'Regenerate list'}
