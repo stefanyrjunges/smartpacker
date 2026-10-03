@@ -3,11 +3,11 @@ import { goto } from '$app/navigation';
 import { token, clearAuth } from './auth';
 import { env } from '$env/dynamic/public';
 
-// In production PUBLIC_API_URL is set to the deployed Flask URL.
-// Locally it comes from frontend/.env. If it is missing the value is empty.
+// In production the variable PUBLIC_API_URL is set to the deployed Flask URL
+// Locally it comes from frontend/.env. If it's missing the value is empty
 export const API_URL = env.PUBLIC_API_URL || '';
 
-// A thin wrapper around fetch that adds the JWT Authorization header.
+// Add the JWT Authorization header
 export async function apiFetch(path, options = {}) {
 	const currentToken = get(token);
 

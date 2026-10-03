@@ -1,7 +1,6 @@
 from datetime import datetime
 
 # Validate basic trip data
-
 def validate_data(data):
     destination = data.get("destination", "").strip()
     luggage_type = data.get("luggage_type", "").strip()
@@ -30,7 +29,6 @@ def validate_data(data):
     return trip_data, None
 
 # Validate activities data
-
 def validate_activities(data):
     if not isinstance(data, dict):
         return None, "Invalid input"

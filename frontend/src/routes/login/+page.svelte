@@ -57,7 +57,7 @@
 		</form>
 
 		<p class="switch-link">
-			No account? <a href="/register">Create one</a>
+			Don't have an account? <a href="/register">Create one</a>
 		</p>
 	</div>
 </div>

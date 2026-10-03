@@ -22,8 +22,8 @@ app = Flask(__name__)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 db_path = os.path.join(BASE_DIR, "instance", "smartpack.db")
 
-# In production DATABASE_URL points at the cloud PostgreSQL database.
-# Tests set it to an in-memory database. Locally it falls back to SQLite.
+# In production DATABASE_URL variable points at the PostgreSQL database in the cloud
+# For testing purposes we set it to an in-memory database (locally it falls back to SQLite)
 database_url = os.environ.get("DATABASE_URL", f"sqlite:///{db_path}")
 
 # Render gives PostgreSQL URLs as "postgres://" but SQLAlchemy needs "postgresql://"
@@ -33,12 +33,12 @@ if database_url.startswith("postgres://"):
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET_KEY", "smartpack-secret-key-change-in-production")
 
-# Tokens last 8 hours so a user is not logged out in the middle of using the app
+# Tokens last 8 hours so a user isn't logged out in the middle of using the app
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=8)
 
-# Neon closes idle PostgreSQL connections, which leaves dead connections in the pool.
-# pool_pre_ping tests a connection before using it and replaces it if it is dead.
-# pool_recycle retires connections after 5 minutes so they do not go stale.
+# The cloud platform (Neon) closes idle PostgreSQL connections. It leaves dead connections in the pool
+# pool_pre_ping will test the connection before using it and replace it if it's dead
+# pool_recycle retires connections after 5 minutes so they don't go stale
 if database_url.startswith("postgresql://"):
     app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
         "pool_pre_ping": True,
@@ -54,6 +54,7 @@ with app.app_context():
 
 # Authentication methods
 
+# Register a new user. We do basic input validation and save it to the database
 @app.post("/auth/register")
 def register():
     data = request.get_json(silent=True)
@@ -85,7 +86,7 @@ def register():
 
     return {"token": token, "email": user.email}, 201
 
-
+# Handle login and input validation
 @app.post("/auth/login")
 def login():
     data = request.get_json(silent=True)
@@ -111,9 +112,12 @@ def login():
 
 # Trips methods
 
+# Create new trip. Basic input validation and save to database
 @app.post("/trips")
+# Run a check before the code executes. This way we can check if the request is carrying a valid jwt (header, token etc). If not, the function won't run
 @jwt_required()
 def new_trip():
+    # If we have a token, we check what user owns the jwt
     user_id = int(get_jwt_identity())
     data = request.get_json(silent=True)
 
@@ -138,7 +142,7 @@ def new_trip():
 
     return {"message": "Trip created", "id": trip.id}, 201
 
-
+# Return all trips
 @app.get("/trips")
 @jwt_required()
 def all_trips():
@@ -158,7 +162,7 @@ def all_trips():
 
     return result
 
-
+# Return trip by id
 @app.get("/trips/<int:id>")
 @jwt_required()
 def get_trip_by_id(id):
@@ -176,7 +180,7 @@ def get_trip_by_id(id):
         "end_date": trip.end_date
     }
 
-
+# Update trip by id
 @app.put("/trips/<int:id>")
 @jwt_required()
 def update_trip(id):
@@ -211,7 +215,7 @@ def update_trip(id):
         "end_date": trip.end_date
     }
 
-
+# Delete trip by id
 @app.delete("/trips/<int:id>")
 @jwt_required()
 def delete_trip(id):
@@ -239,6 +243,7 @@ def delete_trip(id):
 
 # Activities methods
 
+# Return activities by trip
 @app.get("/trips/<int:id>/activities")
 @jwt_required()
 def get_activities(id):
@@ -252,10 +257,11 @@ def get_activities(id):
 
     return [{"id": a.id, "activity": a.activity} for a in activities]
 
-
+# Create new activity inside a trip
 @app.post("/trips/<int:id>/activities")
 @jwt_required()
 def add_activity(id):
+    # If we have a token, we check what user owns the jwt
     user_id = int(get_jwt_identity())
     trip = db.session.get(Trip, id)
 
@@ -279,7 +285,7 @@ def add_activity(id):
 
     return {"message": "Activities added"}, 201
 
-
+# Delete an activity
 @app.delete("/trips/<int:id>/activities/<int:activity_id>")
 @jwt_required()
 def delete_activity(id, activity_id):
@@ -302,8 +308,9 @@ def delete_activity(id, activity_id):
 
 # Weather methods
 
-# Returns saved weather for a trip, or fetches it from the API and saves it.
-# Returns a dict with an "error" key if the API call failed.
+# Returns saved weather for a trip (cached) or fetches it from the API and saves it
+# The weather is cached because the cloud platform was causing the weather API to exceed fetch limits for free tier
+# Returns a dict with an error key if the API call failed
 def get_or_fetch_weather(trip):
     cache = WeatherCache.query.filter_by(trip_id=trip.id).first()
 
@@ -335,7 +342,7 @@ def get_or_fetch_weather(trip):
 
     return weather
 
-
+# Get weather by trip
 @app.get("/trips/<int:id>/weather")
 @jwt_required()
 def trip_weather(id):
@@ -345,7 +352,7 @@ def trip_weather(id):
     if trip is None or trip.user_id != user_id:
         return {"message": "Trip not found"}, 404
 
-    # "refresh" forces a new API call by clearing the saved weather first
+    # refresh will force a new API call. It clears the saved weather first
     if request.args.get("refresh") == "true":
         WeatherCache.query.filter_by(trip_id=id).delete()
         db.session.commit()
@@ -360,6 +367,7 @@ def trip_weather(id):
 
 # Packing methods
 
+# Get items by trip
 @app.get("/trips/<int:id>/packing-list")
 @jwt_required()
 def get_packing_list(id):
@@ -386,6 +394,7 @@ def get_packing_list(id):
 
     activities = Activity.query.filter_by(trip_id=id).all()
 
+    # We either get the cached weather value or we fetch it
     weather = get_or_fetch_weather(trip)
 
     if "error" in weather:
@@ -407,7 +416,7 @@ def get_packing_list(id):
 
     return packing_list
 
-
+# New packing list for the trip
 @app.post("/trips/<int:trip_id>/packing-list")
 @jwt_required()
 def add_packing_item(trip_id):
@@ -452,7 +461,7 @@ def add_packing_item(trip_id):
         "reason": item.reason
     }, 201
 
-
+# Delete packing list by trip
 @app.delete("/trips/<int:trip_id>/packing-list")
 @jwt_required()
 def delete_packing_list(trip_id):
@@ -469,7 +478,7 @@ def delete_packing_list(trip_id):
 
     return {"message": "List deleted successfully"}, 200
 
-
+# Update packing list by trip
 @app.patch("/trips/<int:trip_id>/packing-list/<int:item_id>")
 @jwt_required()
 def update_packing_item(trip_id, item_id):
@@ -500,7 +509,7 @@ def update_packing_item(trip_id, item_id):
         "reason": item.reason
     }
 
-
+# Delete packing list by trip
 @app.delete("/trips/<int:trip_id>/packing-list/<int:item_id>")
 @jwt_required()
 def delete_packing_item(trip_id, item_id):
@@ -520,7 +529,7 @@ def delete_packing_item(trip_id, item_id):
 
     return {"message": "Item deleted successfully"}, 200
 
-
+# Regenerate packing list in case the user changes dates, luggage type or wants to remove added items
 @app.post("/trips/<int:trip_id>/packing-list/regenerate")
 @jwt_required()
 def regenerate_packing_list(trip_id):

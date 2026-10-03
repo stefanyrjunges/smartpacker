@@ -45,7 +45,7 @@
 			<div>
 				<label for="password">Password</label>
 				<input id="password" type="password" bind:value={password} required />
-				<span class="hint">At least 6 characters</span>
+				<span class="hint">Password must have at least 6 characters</span>
 			</div>
 
 			{#if error}
@@ -58,7 +58,7 @@
 		</form>
 
 		<p class="switch-link">
-			Already have an account? <a href="/login">Sign in</a>
+			Already have an account? <a href="/login">Log in</a>
 		</p>
 	</div>
 </div>

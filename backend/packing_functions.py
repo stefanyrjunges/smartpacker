@@ -219,11 +219,13 @@ def generate_packing_list(trip, activities, weather):
 
     added_names = {item["name"] for item in items}
 
+    # Take the activities, make it lowercase and collect results. It turns them into lowercase because the ACTIVITY_ITEMS dictionary keys are lowercase
     activity_names = [activity.activity.lower() for activity in activities]
 
     for activity_name in activity_names:
         if activity_name in ACTIVITY_ITEMS:
             for (name, category, quantity) in ACTIVITY_ITEMS[activity_name]:
+                # Check for duplicates because two different activities with the same packing item could add it twice, so we need to prevent that
                 if name not in added_names:
                     items.append({
                         "name": name,
@@ -233,6 +235,7 @@ def generate_packing_list(trip, activities, weather):
                     })
                     added_names.add(name)
 
+    # We adjust quantities for smaller luggages. The basic clothing items are based on trip length, but we return a smaller quantity (caps at 5)
     if trip.luggage_type.lower() in ("carry-on", "backpack"):
         for item in items:
             if item["name"] in ("T-shirts", "Underwear", "Socks"):

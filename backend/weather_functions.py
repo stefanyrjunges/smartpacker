@@ -3,11 +3,12 @@ import requests
 
 logger = logging.getLogger(__name__)
 
-# Get the weather by connecting to open-meteo API and handle possible errors
+# Get the weather by connecting to open meteo API and handle possible errors
 
 def get_weather(destination, start_date, end_date):
     url = "https://geocoding-api.open-meteo.com/v1/search"
 
+    # Turn the city name into coordinates
     params = {
         "name": destination,
         "count": 1,
@@ -15,6 +16,7 @@ def get_weather(destination, start_date, end_date):
         "format": "json"
     }
 
+    # Handle network problems like timeout, bad status etc
     try:
         response = requests.get(url, params=params, timeout=10)
         response.raise_for_status()
@@ -24,12 +26,13 @@ def get_weather(destination, start_date, end_date):
         logger.error("Geocoding request failed: %s: %s (HTTP %s)", type(e).__name__, e, status)
         return {"error": "Unable to connect to the weather service. Try again in a moment."}
 
+    # Handle a case where the request succeeds but open meteo finds nothing
     if "results" not in data or not data["results"]:
         logger.error("Geocoding returned no results for destination: %s", destination)
         return {"error": "Destination not found. Please check the spelling and try again."}
 
+    # If open meteo found something, take first match and pull coordinates
     location = data["results"][0]
-
     latitude = location["latitude"]
     longitude = location["longitude"]
 
@@ -44,6 +47,7 @@ def get_weather(destination, start_date, end_date):
         "timezone": "auto"
     }
 
+    # Handle network errors or anything that prevents a usable response
     try:
         weather_response = requests.get(
             weather_url,
@@ -61,10 +65,12 @@ def get_weather(destination, start_date, end_date):
         )
         return {"error": "Unable to retrieve weather data. Try again in a moment."}
 
+    # Case where API responds OK but there's no forecast for the dates
     if "daily" not in weather_data:
         logger.error("Forecast response had no 'daily' data for %s to %s", start_date, end_date)
         return {"error": "Weather data is not available for these dates. Open-Meteo only supports forecasts up to 16 days ahead."}
 
+    # Summarise daily data
     daily = weather_data["daily"]
 
     min_temperature = min(daily["temperature_2m_min"])

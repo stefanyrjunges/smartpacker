@@ -51,7 +51,7 @@
 
 		trip = await tripRes.json();
 
-		// The API returns dates like "Thu, 05 Nov 2026 00:00:00 GMT"
+		// API returns dates like "Thu, 05 Nov 2026 00:00:00 GMT"
 		// but <input type="date"> needs "YYYY-MM-DD", so we convert them
 		trip.start_date = new Date(trip.start_date).toISOString().split('T')[0];
 		trip.end_date = new Date(trip.end_date).toISOString().split('T')[0];
@@ -60,7 +60,7 @@
 		loading = false;
 	}
 
-	// Called whenever luggage or dates change in edit mode
+	// Called when luggage or dates change in edit mode
 	async function saveTrip() {
 		saving = true;
 
@@ -142,7 +142,7 @@
 {:else}
 	<div class="page">
 		<div class="top-bar">
-			<a href="/" class="back-link">← All trips</a>
+			<a href="/" class="back-link">⇱ All trips</a>
 			<div class="top-actions">
 				{#if saving}<span class="saving-note">Saving...</span>{/if}
 				{#if isEditing}
@@ -187,7 +187,7 @@
 				</div>
 			{:else}
 				<div class="trip-meta">
-					<span>{trip.start_date} → {trip.end_date}</span>
+					<span>{trip.start_date} ⤑ {trip.end_date}</span>
 					<span class="badge">{luggageLabels[trip.luggage_type] || trip.luggage_type}</span>
 				</div>
 			{/if}
@@ -240,11 +240,11 @@
 			{:else if weather}
 				<div class="weather-grid">
 					<div class="weather-item">
-						<span class="weather-label">Min temp</span>
+						<span class="weather-label">Min temperature</span>
 						<span class="weather-value">{weather.min_temperature}°C</span>
 					</div>
 					<div class="weather-item">
-						<span class="weather-label">Max temp</span>
+						<span class="weather-label">Max temperature</span>
 						<span class="weather-value">{weather.max_temperature}°C</span>
 					</div>
 					<div class="weather-item">
