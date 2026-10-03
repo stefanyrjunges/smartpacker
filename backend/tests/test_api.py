@@ -184,3 +184,180 @@ def test_weather_returns_cached_data_without_calling_api(client, auth_headers):
     assert data["destination"] == "Rome"
     assert data["max_temperature"] == 25.0
     assert data["rain_expected"] is False
+
+
+# CRUD
+
+def test_update_trip(client, auth_headers):
+    create = client.post("/trips", headers=auth_headers, json={
+        "destination": "Rome",
+        "luggage_type": "checked",
+        "start_date": "2026-06-01",
+        "end_date": "2026-06-05"
+    })
+    trip_id = create.get_json()["id"]
+
+    res = client.put(f"/trips/{trip_id}", headers=auth_headers, json={
+        "destination": "Milan",
+        "luggage_type": "carry-on",
+        "start_date": "2026-07-01",
+        "end_date": "2026-07-04"
+    })
+
+    assert res.status_code == 200
+    data = res.get_json()
+    assert data["destination"] == "Milan"
+    assert data["luggage_type"] == "carry-on"
+
+    # The change should have been saved to the database
+    res = client.get(f"/trips/{trip_id}", headers=auth_headers)
+    assert res.get_json()["destination"] == "Milan"
+
+
+def test_update_trip_rejects_invalid_luggage(client, auth_headers):
+    create = client.post("/trips", headers=auth_headers, json={
+        "destination": "Rome",
+        "luggage_type": "checked",
+        "start_date": "2026-06-01",
+        "end_date": "2026-06-05"
+    })
+    trip_id = create.get_json()["id"]
+
+    res = client.put(f"/trips/{trip_id}", headers=auth_headers, json={
+        "destination": "Rome",
+        "luggage_type": "suitcase-with-wheels",
+        "start_date": "2026-06-01",
+        "end_date": "2026-06-05"
+    })
+
+    assert res.status_code == 400
+
+
+# Activities
+
+def test_delete_activity(client, auth_headers):
+    create = client.post("/trips", headers=auth_headers, json={
+        "destination": "Rome",
+        "luggage_type": "checked",
+        "start_date": "2026-06-01",
+        "end_date": "2026-06-05"
+    })
+    trip_id = create.get_json()["id"]
+
+    client.post(f"/trips/{trip_id}/activities", headers=auth_headers, json={
+        "activities": ["hiking"]
+    })
+    activity_id = client.get(f"/trips/{trip_id}/activities", headers=auth_headers).get_json()[0]["id"]
+
+    res = client.delete(f"/trips/{trip_id}/activities/{activity_id}", headers=auth_headers)
+    assert res.status_code == 200
+
+    remaining = client.get(f"/trips/{trip_id}/activities", headers=auth_headers).get_json()
+    assert remaining == []
+
+
+# Packing items
+
+def test_toggle_packing_item_packed(client, auth_headers):
+    create = client.post("/trips", headers=auth_headers, json={
+        "destination": "Rome",
+        "luggage_type": "checked",
+        "start_date": "2026-06-01",
+        "end_date": "2026-06-05"
+    })
+    trip_id = create.get_json()["id"]
+
+    item = client.post(f"/trips/{trip_id}/packing-list", headers=auth_headers, json={
+        "name": "Travel adapter",
+        "quantity": 1
+    }).get_json()
+
+    res = client.patch(f"/trips/{trip_id}/packing-list/{item['id']}", headers=auth_headers, json={
+        "packed": True
+    })
+
+    assert res.status_code == 200
+    assert res.get_json()["packed"] is True
+
+
+def test_delete_packing_item(client, auth_headers):
+    create = client.post("/trips", headers=auth_headers, json={
+        "destination": "Rome",
+        "luggage_type": "checked",
+        "start_date": "2026-06-01",
+        "end_date": "2026-06-05"
+    })
+    trip_id = create.get_json()["id"]
+
+    item = client.post(f"/trips/{trip_id}/packing-list", headers=auth_headers, json={
+        "name": "Travel adapter",
+        "quantity": 1
+    }).get_json()
+
+    res = client.delete(f"/trips/{trip_id}/packing-list/{item['id']}", headers=auth_headers)
+    assert res.status_code == 200
+
+
+# Weather
+
+def _fake_weather_success(destination, start_date, end_date):
+    return {
+        "destination": "Rome",
+        "country": "Italy",
+        "min_temperature": 12.0,
+        "max_temperature": 25.0,
+        "total_precipitation": 0.0,
+        "rain_expected": False
+    }
+
+
+def _fake_weather_error(destination, start_date, end_date):
+    return {"error": "Destination not found. Please check the spelling and try again."}
+
+
+def test_weather_returns_error_when_api_fails(client, auth_headers, monkeypatch):
+    import flask_app
+    monkeypatch.setattr(flask_app, "get_weather", _fake_weather_error)
+
+    create = client.post("/trips", headers=auth_headers, json={
+        "destination": "Nowhereville",
+        "luggage_type": "checked",
+        "start_date": "2026-06-01",
+        "end_date": "2026-06-05"
+    })
+    trip_id = create.get_json()["id"]
+
+    res = client.get(f"/trips/{trip_id}/weather", headers=auth_headers)
+
+    assert res.status_code == 400
+    assert "error" in res.get_json()
+
+
+def test_weather_cache_miss_fetches_then_reuses(client, auth_headers, monkeypatch):
+    import flask_app
+
+    calls = {"count": 0}
+
+    def counting_fetch(destination, start_date, end_date):
+        calls["count"] += 1
+        return _fake_weather_success(destination, start_date, end_date)
+
+    monkeypatch.setattr(flask_app, "get_weather", counting_fetch)
+
+    create = client.post("/trips", headers=auth_headers, json={
+        "destination": "Rome",
+        "luggage_type": "checked",
+        "start_date": "2026-06-01",
+        "end_date": "2026-06-05"
+    })
+    trip_id = create.get_json()["id"]
+
+    # In the first call, the cache is empty so the API will be called and the result stored
+    first = client.get(f"/trips/{trip_id}/weather", headers=auth_headers)
+    assert first.status_code == 200
+    assert calls["count"] == 1
+
+    # The second needs to come from the cache, so the API isn't called again
+    second = client.get(f"/trips/{trip_id}/weather", headers=auth_headers)
+    assert second.status_code == 200
+    assert calls["count"] == 1

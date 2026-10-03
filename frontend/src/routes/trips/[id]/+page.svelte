@@ -23,6 +23,7 @@
 
 	let deleting = $state(false);
 	let saving = $state(false);
+	let saveError = $state('');
 
 	const luggageLabels = {
 		'checked': 'Checked bag',
@@ -63,8 +64,9 @@
 	// Called when luggage or dates change in edit mode
 	async function saveTrip() {
 		saving = true;
+		saveError = '';
 
-		await apiFetch(`/trips/${tripId}`, {
+		const res = await apiFetch(`/trips/${tripId}`, {
 			method: 'PUT',
 			body: JSON.stringify({
 				destination: trip.destination,
@@ -73,6 +75,11 @@
 				end_date: trip.end_date
 			})
 		});
+
+		if (!res.ok) {
+			const data = await res.json();
+			saveError = data.message || 'Could not save changes.';
+		}
 
 		saving = false;
 	}
@@ -103,8 +110,12 @@
 	}
 
 	async function removeActivity(activityId) {
-		await apiFetch(`/trips/${tripId}/activities/${activityId}`, { method: 'DELETE' });
-		activities = activities.filter((a) => a.id !== activityId);
+		const res = await apiFetch(`/trips/${tripId}/activities/${activityId}`, { method: 'DELETE' });
+		if (res.ok) {
+			activities = activities.filter((a) => a.id !== activityId);
+		} else {
+			activityError = 'Could not remove activity.';
+		}
 	}
 
 	async function loadWeather(refresh = false) {
@@ -185,6 +196,9 @@
 						</select>
 					</div>
 				</div>
+				{#if saveError}
+					<p class="error" style="margin-top: 14px;">{saveError}</p>
+				{/if}
 			{:else}
 				<div class="trip-meta">
 					<span>{trip.start_date} ⤑ {trip.end_date}</span>

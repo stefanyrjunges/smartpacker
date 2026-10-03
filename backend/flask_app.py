@@ -493,7 +493,10 @@ def update_packing_item(trip_id, item_id):
     if item is None or item.trip_id != trip_id:
         return {"message": "Packing item not found"}, 404
 
-    data = request.get_json()
+    data = request.get_json(silent=True)
+
+    if not isinstance(data, dict):
+        return {"message": "Invalid JSON data"}, 400
 
     if "packed" in data:
         item.packed = data["packed"]

@@ -7,7 +7,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from trip_functions import validate_data, validate_activities
 
 
-# validate_data
+# Validate data
 
 def test_valid_trip_data():
     data = {
@@ -43,6 +43,32 @@ def test_empty_destination_returns_error():
 
     assert trip_data is None
     assert error == "Please fill in all the information"
+
+
+def test_invalid_luggage_type_returns_error():
+    data = {
+        "destination": "Paris",
+        "luggage_type": "suitcase-with-wheels",
+        "start_date": "2026-06-01",
+        "end_date": "2026-06-05"
+    }
+    trip_data, error = validate_data(data)
+
+    assert trip_data is None
+    assert error == "Luggage type must be checked, carry-on or backpack"
+
+
+def test_luggage_type_is_normalised_to_lowercase():
+    data = {
+        "destination": "Paris",
+        "luggage_type": "Carry-On",
+        "start_date": "2026-06-01",
+        "end_date": "2026-06-05"
+    }
+    trip_data, error = validate_data(data)
+
+    assert error is None
+    assert trip_data["luggage_type"] == "carry-on"
 
 
 def test_invalid_date_format_returns_error():
@@ -84,7 +110,7 @@ def test_same_start_and_end_date_is_valid():
     assert trip_data["start_date"] == trip_data["end_date"]
 
 
-# validate_activities
+# Validate activities
 
 def test_valid_activities():
     data = {"activities": ["hiking", "swimming"]}

@@ -1,5 +1,8 @@
 from datetime import datetime
 
+# The luggage types the app supports
+VALID_LUGGAGE_TYPES = ("checked", "carry-on", "backpack")
+
 # Validate basic trip data
 def validate_data(data):
     destination = data.get("destination", "").strip()
@@ -9,6 +12,9 @@ def validate_data(data):
 
     if not destination or not luggage_type or not start_date or not end_date:
         return None, "Please fill in all the information"
+
+    if luggage_type.lower() not in VALID_LUGGAGE_TYPES:
+        return None, "Luggage type must be checked, carry-on or backpack"
 
     try:
         start_date = datetime.strptime(start_date, "%Y-%m-%d").date()
@@ -21,7 +27,7 @@ def validate_data(data):
 
     trip_data = {
         "destination": destination,
-        "luggage_type": luggage_type,
+        "luggage_type": luggage_type.lower(),
         "start_date": start_date,
         "end_date": end_date
     }
