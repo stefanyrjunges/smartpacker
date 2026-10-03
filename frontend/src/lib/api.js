@@ -4,8 +4,7 @@ import { env } from '$env/dynamic/public';
 
 // In production PUBLIC_API_URL is set to the deployed Flask URL.
 // Locally it comes from frontend/.env. If it is missing the value is empty.
-// Remove a trailing slash so we never build URLs with a double slash.
-export const API_URL = (env.PUBLIC_API_URL || '').replace(/\/$/, '');
+export const API_URL = env.PUBLIC_API_URL || '';
 
 // A thin wrapper around fetch that adds the JWT Authorization header.
 export function apiFetch(path, options = {}) {
