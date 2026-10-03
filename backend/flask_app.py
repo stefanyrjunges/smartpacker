@@ -8,7 +8,7 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
 from database.models import db, User, Trip, Activity, PackingItem
-from datetime import datetime
+from datetime import datetime, timedelta
 from trip_functions import validate_data, validate_activities
 from weather_functions import get_weather
 from packing_functions import generate_packing_list
@@ -28,6 +28,9 @@ if database_url.startswith("postgres://"):
 
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET_KEY", "smartpack-secret-key-change-in-production")
+
+# Tokens last 8 hours so a user is not logged out in the middle of using the app
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=8)
 
 # Neon closes idle PostgreSQL connections, which leaves dead connections in the pool.
 # pool_pre_ping tests a connection before using it and replaces it if it is dead.

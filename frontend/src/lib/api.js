@@ -1,5 +1,6 @@
 import { get } from 'svelte/store';
-import { token } from './auth';
+import { goto } from '$app/navigation';
+import { token, clearAuth } from './auth';
 import { env } from '$env/dynamic/public';
 
 // In production PUBLIC_API_URL is set to the deployed Flask URL.
@@ -7,7 +8,7 @@ import { env } from '$env/dynamic/public';
 export const API_URL = env.PUBLIC_API_URL || '';
 
 // A thin wrapper around fetch that adds the JWT Authorization header.
-export function apiFetch(path, options = {}) {
+export async function apiFetch(path, options = {}) {
 	const currentToken = get(token);
 
 	const headers = {
@@ -19,5 +20,13 @@ export function apiFetch(path, options = {}) {
 		headers['Authorization'] = `Bearer ${currentToken}`;
 	}
 
-	return fetch(API_URL + path, { ...options, headers });
+	const res = await fetch(API_URL + path, { ...options, headers });
+
+	// If the token is missing or expired, log out and send the user to login
+	if (res.status === 401) {
+		clearAuth();
+		goto('/login');
+	}
+
+	return res;
 }
