@@ -29,6 +29,15 @@ if database_url.startswith("postgres://"):
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["JWT_SECRET_KEY"] = os.environ.get("JWT_SECRET_KEY", "smartpack-secret-key-change-in-production")
 
+# Neon closes idle PostgreSQL connections, which leaves dead connections in the pool.
+# pool_pre_ping tests a connection before using it and replaces it if it is dead.
+# pool_recycle retires connections after 5 minutes so they do not go stale.
+if database_url.startswith("postgresql://"):
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "pool_pre_ping": True,
+        "pool_recycle": 300
+    }
+
 db.init_app(app)
 CORS(app)
 JWTManager(app)
