@@ -4,6 +4,7 @@ flask-cors
 flask-jwt-extended
 werkzeug
 requests
+python-dotenv
 gunicorn
 psycopg[binary]
 pytest

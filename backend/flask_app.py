@@ -1,8 +1,13 @@
 import os
 import sys
 import logging
+from dotenv import load_dotenv
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+# Load variables from a local .env file
+# This is for the weather API key so we won't need to hard-code it
+load_dotenv()
 
 # Send log messages to stdout so they show up in the Render logs
 logging.basicConfig(level=logging.INFO)
