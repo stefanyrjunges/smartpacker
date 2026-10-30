@@ -1,3 +1,5 @@
+/* This is the CSS that will apply globally, to all the pages in the app. This is for basic things like links, body, buttons and so on */
+
 *, *::before, *::after {
 	box-sizing: border-box;
 	margin: 0;

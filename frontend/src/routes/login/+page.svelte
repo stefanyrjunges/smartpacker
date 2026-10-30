@@ -1,3 +1,5 @@
+// Sign in form page (front page of the app)
+
 <script>
 	import { goto } from '$app/navigation';
 	import { saveAuth } from '$lib/auth';

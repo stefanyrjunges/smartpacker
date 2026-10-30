@@ -1,3 +1,5 @@
+// Create account page
+
 <script>
 	import { goto } from '$app/navigation';
 	import { saveAuth } from '$lib/auth';

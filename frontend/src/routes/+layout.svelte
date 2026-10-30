@@ -1,3 +1,5 @@
+// Shared functionality. It will display the nav bar, check if the user is allowed to access the page and allow logout
+
 <script>
 	import '../app.css';
 	import { onMount } from 'svelte';
@@ -7,13 +9,16 @@
 
 	let { children } = $props();
 
+	// This is creating a list of routes that won't require authentication because someone who isn't logged in still needs to be able to access login and registration pages
 	const authRoutes = ['/login', '/register'];
 
-	// Check on every navigation if the user is logged in
+	// Check on every navigation if the user is logged in and keeping in mind the authentication status can change when the app is running
 	$effect(() => {
+		// Get the currentPath and also checks if the page is on the list of routes that don't require authentication
 		const currentPath = $page.url.pathname;
 		const isAuthPage = authRoutes.includes(currentPath);
 
+		// If user doesn't have a token and the user isn't on the login/registration page, redirect them back to login
 		if (!$token && !isAuthPage) {
 			goto('/login');
 		}
@@ -27,6 +32,7 @@
 
 <nav>
 	<a href="/" class="logo-smp">SmartPack</a>
+	// Add a conditional so the email and logout button will only appear if the user has a token
 	{#if $token}
 		<div class="nav-right">
 			<span class="nav-email">{$userEmail}</span>

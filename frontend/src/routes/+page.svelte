@@ -1,3 +1,5 @@
+// Trips page. See existing trips, create a new trip and open a trip
+
 <script>
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';

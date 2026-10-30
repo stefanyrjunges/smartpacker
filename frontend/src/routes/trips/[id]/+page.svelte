@@ -1,3 +1,5 @@
+// Page for the trip details like dates, luggage and so on. This also links to the packing list
+
 <script>
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
