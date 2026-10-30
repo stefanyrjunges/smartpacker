@@ -67,7 +67,7 @@
 			<form onsubmit={createTrip} class="form-row">
 				<div>
 					<label for="destination">Destination</label>
-					<input id="destination" bind:value={destination} placeholder="e.g. Paris" required />
+					<input id="destination" bind:value={destination} placeholder="Paris, Dublin, Munich" required />
 				</div>
 
 				<div>
@@ -106,7 +106,7 @@
 	{:else if error}
 		<p class="error">{error}.</p>
 	{:else if showForm}
-		<!-- Hide the trip list while the create form is open -->
+		<!-- Trip list hidden while the create form is open -->
 	{:else if trips.length === 0}
 		<p class="muted">No trips yet. Click "New trip" to create one.</p>
 	{:else}
@@ -153,8 +153,6 @@
 		justify-content: space-between;
 		align-items: center;
 		background: #fff;
-		border: 1px solid #e5e5e5;
-		border-radius: 10px;
 		padding: 16px 20px;
 	}
 
@@ -187,7 +185,6 @@
 	.action-btn {
 		display: inline-block;
 		padding: 7px 16px;
-		border-radius: 6px;
 		font-size: 13px;
 		font-weight: 500;
 	}

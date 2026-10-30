@@ -34,7 +34,7 @@
 
 <div class="auth-page">
 	<div class="auth-card">
-		<h1>SmartPack</h1>
+		<h1 class="logo-smp">SmartPack</h1>
 		<p class="subtitle">Create an account</p>
 
 		<form onsubmit={register} class="form-row">
@@ -74,8 +74,6 @@
 
 	.auth-card {
 		background: #fff;
-		border: 1px solid #e5e5e5;
-		border-radius: 10px;
 		padding: 36px;
 		width: 100%;
 		max-width: 380px;
@@ -83,8 +81,6 @@
 
 	h1 {
 		font-size: 22px;
-		font-weight: 700;
-		color: #2563eb;
 		margin-bottom: 4px;
 	}
 
@@ -109,6 +105,6 @@
 	}
 
 	.switch-link a {
-		color: #2563eb;
+		color: #1a1a1a;
 	}
 </style>

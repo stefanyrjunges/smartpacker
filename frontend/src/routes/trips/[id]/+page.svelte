@@ -229,7 +229,7 @@
 				<form class="add-activity-row" onsubmit={addActivity}>
 					<input
 						bind:value={newActivity}
-						placeholder="e.g. hiking, swimming, nightlife"
+						placeholder="hiking, swimming, nightlife"
 						required
 					/>
 					<button type="submit" class="btn-primary" disabled={addingActivity}>Add</button>
@@ -307,10 +307,6 @@
 		color: #555;
 	}
 
-	.back-link:hover {
-		color: #2563eb;
-	}
-
 	.trip-meta {
 		display: flex;
 		align-items: center;
@@ -342,7 +338,6 @@
 	.badge {
 		background: #f0f0f0;
 		padding: 3px 10px;
-		border-radius: 20px;
 		font-size: 12px;
 		color: #555;
 	}
@@ -361,7 +356,6 @@
 		align-items: center;
 		padding: 8px 12px;
 		background: #f9f9f9;
-		border-radius: 6px;
 		font-size: 14px;
 	}
 
@@ -385,7 +379,6 @@
 
 	.weather-item {
 		background: #f9f9f9;
-		border-radius: 8px;
 		padding: 12px 14px;
 		display: flex;
 		flex-direction: column;
@@ -415,7 +408,6 @@
 	.action-link {
 		display: inline-block;
 		padding: 8px 16px;
-		border-radius: 6px;
 		font-size: 14px;
 		font-weight: 500;
 	}

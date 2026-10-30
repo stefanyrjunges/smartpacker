@@ -9,7 +9,7 @@
 
 	const authRoutes = ['/login', '/register'];
 
-	// Check on every navigation whether the user is logged in
+	// Check on every navigation if the user is logged in
 	$effect(() => {
 		const currentPath = $page.url.pathname;
 		const isAuthPage = authRoutes.includes(currentPath);
@@ -26,7 +26,7 @@
 </script>
 
 <nav>
-	<a href="/" class="logo">SmartPack</a>
+	<a href="/" class="logo-smp">SmartPack</a>
 	{#if $token}
 		<div class="nav-right">
 			<span class="nav-email">{$userEmail}</span>
@@ -40,19 +40,12 @@
 <style>
 	nav {
 		background: #fff;
-		border-bottom: 1px solid #e5e5e5;
+		border-bottom: none;
 		padding: 0 20px;
 		height: 52px;
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
-	}
-
-	.logo {
-		font-size: 17px;
-		font-weight: 700;
-		letter-spacing: -0.3px;
-		color: #2563eb;
 	}
 
 	.nav-right {
@@ -68,8 +61,6 @@
 
 	.logout-btn {
 		background: none;
-		border: 1px solid #d4d4d4;
-		border-radius: 6px;
 		padding: 5px 12px;
 		font-size: 13px;
 		color: #444;

@@ -208,10 +208,6 @@
 		color: #555;
 	}
 
-	.back-link:hover {
-		color: #2563eb;
-	}
-
 	.list-header {
 		display: flex;
 		align-items: baseline;
@@ -241,7 +237,6 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: 12px 16px;
-		border-bottom: 1px solid #f0f0f0;
 	}
 
 	.item-row.last {
@@ -265,6 +260,7 @@
 		height: 16px;
 		flex-shrink: 0;
 		cursor: pointer;
+		accent-color: #E677CA;
 	}
 
 	.item-name {
@@ -281,7 +277,6 @@
 		color: #888;
 		background: #f0f0f0;
 		padding: 2px 7px;
-		border-radius: 10px;
 	}
 
 	.item-actions {
@@ -315,13 +310,11 @@
 		justify-content: flex-end;
 		margin-top: 24px;
 		padding-top: 20px;
-		border-top: 1px solid #e5e5e5;
 	}
 
 	.done-btn {
 		display: inline-block;
 		padding: 9px 22px;
-		border-radius: 6px;
 		font-size: 14px;
 		font-weight: 500;
 	}
