@@ -1,5 +1,3 @@
-// Shared functionality. It will display the nav bar, check if the user is allowed to access the page and allow logout
-
 <script>
 	import '../app.css';
 	import { onMount } from 'svelte';
@@ -32,7 +30,6 @@
 
 <nav>
 	<a href="/" class="logo-smp">SmartPack</a>
-	// Add a conditional so the email and logout button will only appear if the user has a token
 	{#if $token}
 		<div class="nav-right">
 			<span class="nav-email">{$userEmail}</span>

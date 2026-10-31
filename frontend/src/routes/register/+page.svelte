@@ -1,5 +1,3 @@
-// Create account page
-
 <script>
 	import { goto } from '$app/navigation';
 	import { saveAuth } from '$lib/auth';
@@ -79,10 +77,11 @@
 		padding: 36px;
 		width: 100%;
 		max-width: 380px;
+		margin-top:-100px;
 	}
 
 	h1 {
-		font-size: 22px;
+		font-size: 40px;
 		margin-bottom: 4px;
 	}
 
