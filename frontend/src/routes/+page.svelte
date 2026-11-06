@@ -193,4 +193,8 @@
 		color: #888;
 		font-size: 14px;
 	}
+
+	h1 {
+		font-family: 'Fraunces', serif;
+	}
 </style>
