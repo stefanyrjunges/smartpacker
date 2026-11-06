@@ -34,7 +34,10 @@
 
 <div class="auth-page">
 	<div class="auth-card">
-		<h1 class="logo-smp">SmartPack</h1>
+		<!-- Icon credits: https://www.flaticon.com/free-icons/travel by Mangnific -->
+		<h1 class="logo-smp">SmartPack
+		<img src="/image/luggage.png" alt="SmartPack logo"/>
+		</h1> 
 		<p class="subtitle">Sign in</p>
 
 		<form onsubmit={login} class="form-row">
